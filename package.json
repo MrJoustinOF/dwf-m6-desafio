@@ -1,0 +1,22 @@
+{
+  "name": "dwf-m5-desafio",
+  "version": "1.0.0",
+  "license": "MIT",
+  "scripts": {
+    "dev": "nodemon ./src/index.ts",
+    "client": "parcel serve ./src/public/index.html ",
+    "compile": "tsc ./src/index.ts && tsc ./src/codeGen.ts",
+    "start": "yarn compile && node ./src/index.js"
+  },
+  "devDependencies": {
+    "@parcel/transformer-image": "2.0.0-beta.3.1",
+    "parcel": "^2.0.0-beta.3.1"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "firebase": "^8.10.0",
+    "nodemon": "^2.0.12",
+    "ts-node": "^10.2.0",
+    "typescript": "^4.3.5"
+  }
+}
