@@ -103,71 +103,66 @@ export function initJuego(params) {
   }, 3000);
 
   setTimeout(() => {
+    let handsContainer: any = "";
+    let selected: any = "";
+
     rtdbRefJuego.on("value", (snapshot) => {
-      dataJuego = snapshot.val();
-      const lastState = state.getState();
+      if (state.getState().time === 3 && state.getState().moment === "result") {
+        dataJuego = snapshot.val();
+        handsContainer = document.querySelector(".hands_container");
+        selected = document.querySelector(".selected");
+        let arrayHands = [tijeras, piedra, papel];
 
-      if (state.getState().handOn != false) {
-        if (lastState.time == 3 && lastState.moment == "result") {
-          const handsContainer = document.querySelector(".hands_container");
-          let selected = document.querySelector(".selected");
-          let arrayHands = [tijeras, piedra, papel];
-
-          if (
-            !state.getState().handOn ||
-            state.getState().handOn == null ||
-            state.getState().handOn == undefined
-          ) {
-            let random = Math.floor(Math.random() * 3);
-            selected = arrayHands[random];
-            let arrayToState = ["tijeras", "piedra", "papel"];
-            state.setState({
-              ...state.getState(),
-              handOn: arrayToState[random],
-            });
-          }
-
+        if (state.getState().handOn === undefined) {
+          let random = Math.floor(Math.random() * 3);
+          selected = arrayHands[random];
+          let arrayToState = ["tijeras", "piedra", "papel"];
           state.setState({
             ...state.getState(),
-            oponent:
-              Object.keys(dataJuego)[0] != state.getState().name
-                ? Object.keys(dataJuego)[0]
-                : Object.keys(dataJuego)[1],
+            handOn: arrayToState[random],
           });
-
-          const oponentObject = dataJuego[state.getState().oponent];
-          let userObject = dataJuego[state.getState().name];
-
-          userObject.handChoosen = state.getState().handOn;
-          rtdbJuego
-            .ref(
-              `/gamerooms/${state.getState().sala}/players/${
-                state.getState().name
-              }`
-            )
-            .update(userObject);
-
-          setTimeout(() => {
-            let handOponent = document.querySelector(
-              `.img-hand__${oponentObject.handChoosen}`
-            );
-            handsContainer.appendChild(handOponent);
-            handsContainer.appendChild(selected);
-            let containerToRemove = document.querySelector(".hands");
-            containerToRemove.parentNode.removeChild(containerToRemove);
-
-            handOponent.classList.remove("deselected");
-            handOponent.classList.add("hand-oponent");
-            selected.classList.remove("selected");
-            selected.classList.add("hand-selected");
-
-            handsContainer.parentNode.removeChild(
-              document.querySelector(".cron_container")
-            );
-            handsContainer.classList.remove("hands_container");
-            handsContainer.classList.add("hands_result");
-          }, 2000);
         }
+
+        state.setState({
+          ...state.getState(),
+          oponent:
+            Object.keys(dataJuego)[0] != state.getState().name
+              ? Object.keys(dataJuego)[0]
+              : Object.keys(dataJuego)[1],
+        });
+
+        let userObject = dataJuego[state.getState().name];
+
+        userObject.handChoosen = state.getState().handOn;
+        rtdbJuego
+          .ref(
+            `/gamerooms/${state.getState().sala}/players/${
+              state.getState().name
+            }`
+          )
+          .update(userObject);
+
+        setTimeout(() => {
+          const oponentObject = dataJuego[state.getState().oponent];
+          let handOponent = document.querySelector(
+            `.img-hand__${oponentObject.handChoosen}`
+          );
+          handsContainer.appendChild(handOponent);
+          handsContainer.appendChild(selected);
+          let containerToRemove = document.querySelector(".hands");
+          containerToRemove.parentNode.removeChild(containerToRemove);
+
+          handOponent.classList.remove("deselected");
+          handOponent.classList.add("hand-oponent");
+          selected.classList.remove("selected");
+          selected.classList.add("hand-selected");
+
+          handsContainer.parentNode.removeChild(
+            document.querySelector(".cron_container")
+          );
+          handsContainer.classList.remove("hands_container");
+          handsContainer.classList.add("hands_result");
+        }, 2000);
 
         setTimeout(() => {
           const handSelected = document.querySelector(".hand-selected");
@@ -175,17 +170,17 @@ export function initJuego(params) {
           const TheResultDiv = document.createElement("div");
           TheResultDiv.classList.add("result");
           root.firstChild.appendChild(TheResultDiv);
-          const resultDiv = document.querySelector(".result");
+          // const resultDiv = document.querySelector(".result");
 
-          const handOponent = document.querySelector(".hand-oponent");
+          const handOponentcomp = document.querySelector(".hand-oponent");
 
           if (
             (handSelected.classList.value.includes("tijeras") &&
-              handOponent.classList.value.includes("papel")) ||
+              handOponentcomp.classList.value.includes("papel")) ||
             (handSelected.classList.value.includes("papel") &&
-              handOponent.classList.value.includes("piedra")) ||
+              handOponentcomp.classList.value.includes("piedra")) ||
             (handSelected.classList.value.includes("piedra") &&
-              handOponent.classList.value.includes("tijeras"))
+              handOponentcomp.classList.value.includes("tijeras"))
           ) {
             tijeras.removeEventListener("click", tijerasListeners);
             piedra.removeEventListener("click", piedraListeners);
@@ -200,114 +195,130 @@ export function initJuego(params) {
               winner: state.getState().oponent,
             });
           }
-
-          const initResult = () => {
-            if (state.getState().winner == state.getState().oponent) {
-              const message = document.createElement("div");
-              message.innerHTML = `
-                <img src="${loseSign}" class="sign-result" />
-                  <div class="score-container">
-                    <h2>Score</h2>
-                    <h3>${state.getState().name}: ${
-                dataPlayers[state.getState().name].puntos
-              }</h3>
-                    <h3>${state.getState().oponent}: ${
-                dataPlayers[state.getState().oponent].puntos
-              }</h3>
-                  </div>
-  
-                  ${buttonComponent("Volver a jugar", "", "backAndReset")}`;
-              resultDiv.appendChild(message);
-              resultDiv.classList.add("err-bg");
-            } else {
-              const message = document.createElement("div");
-              message.innerHTML = `
-                    <img src="${successSign}" class="sign-result" />
-                    <div class="score-container">
-                      <h2>Score</h2>
-                      <h3>${state.getState().name}: ${
-                dataPlayers[state.getState().name].puntos
-              }</h3>
-                      <h3>${state.getState().oponent}: ${
-                dataPlayers[state.getState().oponent].puntos
-              }</h3>
-                    </div>
-                  ${buttonComponent("Volver a jugar", "", "backAndReset")}`;
-              resultDiv.appendChild(message);
-              resultDiv.classList.add("success-bg");
-            }
-            const buttonComp = document.querySelector(".backAndReset");
-            buttonComp.addEventListener("click", (e) => {
-              params.goTo("/empezar");
-            });
-          };
-
-          const resetValuesRTDB = () => {
-            if (state.getState().compStatus == "reset") {
-              let dataToReset = {
-                handChoosen: false,
-                ready: false,
-              };
-
-              state.setState({
-                ...state.getState(),
-                compStatus: "other",
-              });
-              rtdbJuego
-                .ref(
-                  `/gamerooms/${state.getState().sala}/players/${
-                    state.getState().name
-                  }`
-                )
-                .update(dataToReset);
-
-              rtdbJuego = "";
-              rtdbRefJuego = "";
-            }
-          };
-
-          let dataPlayers = {};
-          if (state.getState().winner == state.getState().name) {
-            fetch(`/api/gamerooms/${state.getState().sala}`, {
-              method: "PUT",
-              body: JSON.stringify({
-                winner: state.getState().winner,
-              }),
-              headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-              },
-            })
-              .then((res) => res.json())
-              .then((json) => {
-                dataPlayers = json.players;
-                state.setState({
-                  ...state.getState(),
-                  compStatus: "reset",
-                  handOn: false,
-                });
-                resetValuesRTDB();
-                initResult();
-              });
-          } else {
-            setTimeout(() => {
-              fetch(`/api/gamerooms/${state.getState().sala}`)
-                .then((res) => res.json())
-                .then((json) => {
-                  dataPlayers = json.players;
-                  state.setState({
-                    ...state.getState(),
-                    compStatus: "reset",
-                    handOn: false,
-                  });
-                  resetValuesRTDB();
-                  initResult();
-                });
-            }, 2000);
-          }
         }, 2000);
       }
     });
+
+    setTimeout(() => {
+      const resultDiv = document.querySelector(".result");
+      const initResult = () => {
+        if (state.getState().winner == state.getState().oponent) {
+          const message = document.createElement("div");
+          message.innerHTML = `
+            <img src="${loseSign}" class="sign-result" />
+              <div class="score-container">
+                <h2>Score</h2>
+                <h3>${state.getState().name}: ${
+            dataPlayers[state.getState().name].puntos
+          }</h3>
+                <h3>${state.getState().oponent}: ${
+            dataPlayers[state.getState().oponent].puntos
+          }</h3>
+              </div>
+
+              ${buttonComponent("Volver a jugar", "", "backAndReset")}`;
+          resultDiv.appendChild(message);
+          resultDiv.classList.add("err-bg");
+        } else {
+          const message = document.createElement("div");
+          message.innerHTML = `
+                <img src="${successSign}" class="sign-result" />
+                <div class="score-container">
+                  <h2>Score</h2>
+                  <h3>${state.getState().name}: ${
+            dataPlayers[state.getState().name].puntos
+          }</h3>
+                  <h3>${state.getState().oponent}: ${
+            dataPlayers[state.getState().oponent].puntos
+          }</h3>
+                </div>
+              ${buttonComponent("Volver a jugar", "", "backAndReset")}`;
+          resultDiv.appendChild(message);
+          resultDiv.classList.add("success-bg");
+        }
+        const buttonComp = document.querySelector(".backAndReset");
+        buttonComp.addEventListener("click", (e) => {
+          params.goTo("/empezar");
+        });
+      };
+
+      const resetValuesRTDB = () => {
+        if (state.getState().compStatus == "reset") {
+          let dataToReset = {
+            handChoosen: false,
+            ready: false,
+          };
+
+          state.setState({
+            ...state.getState(),
+            compStatus: "other",
+          });
+          rtdbJuego
+            .ref(
+              `/gamerooms/${state.getState().sala}/players/${
+                state.getState().name
+              }`
+            )
+            .update(dataToReset);
+
+          state.setState({
+            ...state.getState(),
+            time: 0,
+            moment: "waiting",
+          });
+        }
+      };
+
+      let dataPlayers = {};
+      state.setState({ ...state.getState(), validator: true });
+      console.log(state.getState(), "NO RTDB");
+      if (
+        state.getState().winner == state.getState().name &&
+        state.getState().validator == true
+      ) {
+        state.setState({ ...state.getState(), validator: false });
+        fetch(`/api/gamerooms/${state.getState().sala}`, {
+          method: "PUT",
+          body: JSON.stringify({
+            winner: state.getState().winner,
+          }),
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        })
+          .then((res) => res.json())
+          .then((json) => {
+            dataPlayers = json.players;
+            state.setState({
+              ...state.getState(),
+              compStatus: "reset",
+              handOn: false,
+            });
+            resetValuesRTDB();
+            initResult();
+          });
+      } else if (
+        state.getState().winner != state.getState().name &&
+        state.getState().validator == true
+      ) {
+        state.setState({ ...state.getState(), validator: false });
+        setTimeout(() => {
+          fetch(`/api/gamerooms/${state.getState().sala}`)
+            .then((res) => res.json())
+            .then((json) => {
+              dataPlayers = json.players;
+              state.setState({
+                ...state.getState(),
+                compStatus: "reset",
+                handOn: false,
+              });
+              resetValuesRTDB();
+              initResult();
+            });
+        }, 2000);
+      }
+    }, 3000);
   }, 4000);
   return el;
 }
