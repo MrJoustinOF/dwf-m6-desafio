@@ -1,6 +1,7 @@
 import firebase from "firebase";
 import { state } from "../state";
 import { buttonComponent } from "../components/button";
+import { addSelected } from "./utils/addSelected";
 const tijerasIMG = require("url:./../img/tijeras.png");
 const piedraIMG = require("url:./../img/piedra.png");
 const papelIMG = require("url:./../img/papel.png");
@@ -33,13 +34,7 @@ export function initJuego(params) {
   const papel = el.querySelector(".img-hand__papel");
 
   const tijerasListeners = () => {
-    tijeras.classList.add("selected");
-    tijeras.classList.remove("deselected");
-    piedra.classList.add("deselected");
-    piedra.classList.remove("selected");
-    papel.classList.add("deselected");
-    papel.classList.remove("selected");
-
+    addSelected("tijeras", el);
     state.setState({
       ...state.getState(),
       handOn: "tijeras",
@@ -47,13 +42,7 @@ export function initJuego(params) {
   };
 
   const piedraListeners = () => {
-    tijeras.classList.add("deselected");
-    tijeras.classList.remove("selected");
-    piedra.classList.add("selected");
-    piedra.classList.remove("deselected");
-    papel.classList.add("deselected");
-    papel.classList.remove("selected");
-
+    addSelected("piedra", el);
     state.setState({
       ...state.getState(),
       handOn: "piedra",
@@ -61,13 +50,7 @@ export function initJuego(params) {
   };
 
   const papelListeners = () => {
-    tijeras.classList.add("deselected");
-    tijeras.classList.remove("selected");
-    piedra.classList.add("deselected");
-    piedra.classList.remove("selected");
-    papel.classList.add("selected");
-    papel.classList.remove("deselected");
-
+    addSelected("papel", el);
     state.setState({
       ...state.getState(),
       handOn: "papel",
@@ -113,10 +96,15 @@ export function initJuego(params) {
         selected = document.querySelector(".selected");
         let arrayHands = [tijeras, piedra, papel];
 
-        if (state.getState().handOn === undefined) {
+        if (
+          state.getState().handOn === undefined ||
+          state.getState().handOn === false
+        ) {
           let random = Math.floor(Math.random() * 3);
           selected = arrayHands[random];
           let arrayToState = ["tijeras", "piedra", "papel"];
+
+          addSelected(arrayToState[random], el);
           state.setState({
             ...state.getState(),
             handOn: arrayToState[random],
@@ -131,71 +119,85 @@ export function initJuego(params) {
               : Object.keys(dataJuego)[1],
         });
 
+        let oponentObject = dataJuego[state.getState().oponent];
         let userObject = dataJuego[state.getState().name];
 
-        userObject.handChoosen = state.getState().handOn;
-        rtdbJuego
-          .ref(
-            `/gamerooms/${state.getState().sala}/players/${
-              state.getState().name
-            }`
-          )
-          .update(userObject);
+        if (state.getState().handOn !== undefined) {
+          userObject.handChoosen = state.getState().handOn;
+          rtdbJuego
+            .ref(
+              `/gamerooms/${state.getState().sala}/players/${
+                state.getState().name
+              }`
+            )
+            .update(userObject);
+        }
 
-        setTimeout(() => {
-          const oponentObject = dataJuego[state.getState().oponent];
-          let handOponent = document.querySelector(
-            `.img-hand__${oponentObject.handChoosen}`
-          );
-          handsContainer.appendChild(handOponent);
-          handsContainer.appendChild(selected);
-          let containerToRemove = document.querySelector(".hands");
-          containerToRemove.parentNode.removeChild(containerToRemove);
+        if (oponentObject.handChoosen !== false) {
+          state.setState({
+            ...state.getState(),
+            handOponent: oponentObject.handChoosen,
+          });
+        }
 
-          handOponent.classList.remove("deselected");
-          handOponent.classList.add("hand-oponent");
-          selected.classList.remove("selected");
-          selected.classList.add("hand-selected");
+        // c
+        if (state.getState().handOponent !== false) {
+          setTimeout(() => {
+            // const oponentObject = dataJuego[state.getState().oponent];
+            let handOponent = document.querySelector(
+              `.img-hand__${state.getState().handOponent}`
+            );
+            handsContainer.appendChild(handOponent);
+            handsContainer.appendChild(selected);
+            let containerToRemove = document.querySelector(".hands");
+            containerToRemove.parentNode.removeChild(containerToRemove);
 
-          handsContainer.parentNode.removeChild(
-            document.querySelector(".cron_container")
-          );
-          handsContainer.classList.remove("hands_container");
-          handsContainer.classList.add("hands_result");
-        }, 2000);
+            handOponent.classList.remove("deselected");
+            handOponent.classList.add("hand-oponent");
+            selected.classList.remove("selected");
+            selected.classList.add("hand-selected");
 
-        setTimeout(() => {
-          const handSelected = document.querySelector(".hand-selected");
-          const root = document.querySelector(".root");
-          const TheResultDiv = document.createElement("div");
-          TheResultDiv.classList.add("result");
-          root.firstChild.appendChild(TheResultDiv);
-          // const resultDiv = document.querySelector(".result");
+            handsContainer.parentNode.removeChild(
+              document.querySelector(".cron_container")
+            );
+            handsContainer.classList.remove("hands_container");
+            handsContainer.classList.add("hands_result");
+            // }, 2000);
 
-          const handOponentcomp = document.querySelector(".hand-oponent");
+            // setTimeout(() => {
+            const handSelected = document.querySelector(".hand-selected");
+            const root = document.querySelector(".root");
+            const TheResultDiv = document.createElement("div");
+            TheResultDiv.classList.add("result");
+            root.firstChild.appendChild(TheResultDiv);
+            // const resultDiv = document.querySelector(".result");
 
-          if (
-            (handSelected.classList.value.includes("tijeras") &&
-              handOponentcomp.classList.value.includes("papel")) ||
-            (handSelected.classList.value.includes("papel") &&
-              handOponentcomp.classList.value.includes("piedra")) ||
-            (handSelected.classList.value.includes("piedra") &&
-              handOponentcomp.classList.value.includes("tijeras"))
-          ) {
-            tijeras.removeEventListener("click", tijerasListeners);
-            piedra.removeEventListener("click", piedraListeners);
-            papel.removeEventListener("click", papelListeners);
-            state.setState({
-              ...state.getState(),
-              winner: state.getState().name,
-            });
-          } else {
-            state.setState({
-              ...state.getState(),
-              winner: state.getState().oponent,
-            });
-          }
-        }, 2000);
+            const handOponentcomp = document.querySelector(".hand-oponent");
+
+            if (
+              (handSelected.classList.value.includes("tijeras") &&
+                handOponentcomp.classList.value.includes("papel")) ||
+              (handSelected.classList.value.includes("papel") &&
+                handOponentcomp.classList.value.includes("piedra")) ||
+              (handSelected.classList.value.includes("piedra") &&
+                handOponentcomp.classList.value.includes("tijeras"))
+            ) {
+              tijeras.removeEventListener("click", tijerasListeners);
+              piedra.removeEventListener("click", piedraListeners);
+              papel.removeEventListener("click", papelListeners);
+              state.setState({
+                ...state.getState(),
+                winner: state.getState().name,
+              });
+            } else {
+              state.setState({
+                ...state.getState(),
+                winner: state.getState().oponent,
+              });
+            }
+          }, 2000);
+        }
+        // k
       }
     });
 
@@ -271,7 +273,6 @@ export function initJuego(params) {
 
       let dataPlayers = {};
       state.setState({ ...state.getState(), validator: true });
-      console.log(state.getState(), "NO RTDB");
       if (
         state.getState().winner == state.getState().name &&
         state.getState().validator == true
