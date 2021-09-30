@@ -1,0 +1,273 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Odibee Sans", cursive;
+}
+
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+body {
+  background-image: url(bg.1bcfdeb5.png);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center;
+}
+
+a {
+  text-decoration: none;
+}
+
+.title-index__container {
+  display: flex;
+  justify-content: center;
+}
+
+.title-index {
+  color: #009048;
+  text-align: left;
+  font-size: 80px;
+  margin-top: 40px;
+}
+
+.title-o {
+  color: #91ccaf;
+}
+
+.button-component__container {
+  display: flex;
+  justify-content: center;
+}
+
+.button-component {
+  width: 332px;
+  height: 87px;
+  font-size: 45px;
+  background: #006cfc;
+  color: white;
+  border: 10px solid #001997;
+  border-radius: 10px;
+  margin-top: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.button-component:hover {
+  background: #009efc;
+  cursor: pointer;
+}
+
+.title-input {
+  font-size: 45px;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  margin-top: 25px;
+}
+
+.input-component {
+  width: 332px;
+  height: 87px;
+  font-size: 45px;
+  background: white;
+  border: 10px solid #182460;
+  border-radius: 10px;
+  margin-top: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+.input-component::placeholder {
+  color: #d9d9d9;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .input-component {
+    width: 263px;
+  }
+}
+
+.err {
+  color: red;
+}
+
+.container-divs-before {
+  margin-top: 50px;
+}
+
+.div-before-game {
+  display: block;
+  width: 100%;
+  text-align: center;
+  font-size: 48px;
+}
+
+.code-div {
+  font-weight: bold;
+}
+
+.normal-divs {
+  font-weight: 400;
+}
+
+.header-empezar {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 20px;
+}
+
+.left-header {
+  text-align: left;
+}
+
+.right-header {
+  text-align: right;
+}
+
+.text-header {
+  font-size: 35px !important;
+}
+
+.text-orange {
+  color: #ff6442;
+}
+
+.waiting-text {
+  font-size: 35px !important;
+  text-align: center;
+  margin-top: 100px;
+}
+
+.hands {
+  height: 325px;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+}
+
+.ready-sign {
+  text-align: center;
+  font-size: 45px;
+  margin-top: 60px;
+}
+
+.img-hand__tijeras,
+.img-hand__piedra,
+.img-hand__papel {
+  cursor: pointer;
+}
+
+.description-empezar {
+  text-align: center;
+  font-size: 40px;
+  display: flex;
+  justify-content: center;
+  margin-top: 60px;
+}
+
+.cron_container {
+  /* min-width: 244;
+  min-height: 293;
+  max-width: 100%;
+  max-height: 100%; */
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.cron-item {
+  display: block;
+  margin: auto;
+  padding-top: 50px;
+}
+
+.deselected {
+  opacity: 0.5;
+  padding-top: 25px;
+}
+
+.selected {
+  opacity: 1;
+  padding-bottom: 25px;
+}
+
+.hands_result {
+  display: grid;
+  grid-template-columns: 100%;
+  row-gap: 50px;
+  padding: 20px 0 20px 0;
+}
+
+.hand-oponent {
+  transform: rotate(180deg);
+  width: 125px;
+  margin: 0 auto;
+}
+
+.hand-selected {
+  width: 125px;
+  margin: 0 auto;
+}
+
+/* .result {
+  
+} */
+
+.err-bg,
+.success-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+}
+
+.err-bg {
+  background: rgba(137, 73, 73, 0.9);
+}
+
+.success-bg {
+  background: rgba(136, 137, 73, 0.9);
+}
+
+.message-title {
+  color: rgb(225, 225, 225);
+  text-align: center;
+  padding: 10px;
+  margin-top: 60px;
+}
+
+.sign-result {
+  display: block;
+  margin: auto;
+  padding-top: 25px;
+}
+
+.score-container {
+  width: 250px;
+  background: #fff;
+  border: 10px solid #000000;
+  border-radius: 10px;
+  text-align: center;
+  margin: 0 auto;
+  padding: 15px;
+}
+
+.score-container h2 {
+  font-size: 55px;
+}
+
+.score-container h3 {
+  font-size: 45px;
+  text-align: end;
+}
+
+/*# sourceMappingURL=index.17c83747.css.map */

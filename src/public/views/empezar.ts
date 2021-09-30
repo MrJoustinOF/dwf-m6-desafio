@@ -1,4 +1,4 @@
-import firebase from "firebase";
+import { rtdb } from "./../db";
 import { buttonComponent } from "../components/button";
 import { state } from "./../state";
 const tijerasIMG = require("url:./../img/tijeras.png");
@@ -20,27 +20,21 @@ export function initEmpezarPage(params) {
     </div>
   `;
 
-  const rtdb = firebase.database();
-  const rtdbRef = rtdb.ref(`/gamerooms/${state.getState().sala}/players`);
-
-  let data: any = {};
-  // if (state.getState().compStatus != "result") {
-  rtdbRef.on("value", (snapshot) => {
-    data = snapshot.val();
-
-    const content = el.querySelector(".container_content");
-    // setTimeout(() => {
-    if (Object.keys(data).length === 2) {
-      const afterDiv = document.createElement("div");
-      afterDiv.innerHTML = `
+  state.subscribe(() => {
+    if (window.location.pathname == "/empezar") {
+      const content = document.querySelector(".container_content");
+      const { name, oponentName, oponentObject, sala } = state.getState();
+      if (oponentObject) {
+        const afterDiv = document.createElement("div");
+        afterDiv.innerHTML = `
 
         <div class="header-empezar text-header">
           <div class="left-header">
             <h5>
-              ${Object.keys(data)[0]}
+              ${name}
             </h5>
             <span class="text-orange">
-              ${Object.keys(data)[1] ? Object.keys(data)[1] : ""}
+              ${oponentName}
             </span>
           </div>
 
@@ -49,7 +43,7 @@ export function initEmpezarPage(params) {
               Sala:
             </h5>
             <span>
-              ${state.getState().sala}
+              ${sala}
             </span>
           </div>
         </div>
@@ -69,59 +63,46 @@ export function initEmpezarPage(params) {
 
         `;
 
-      // Comprobar si el primer dato del array es igual al usuario logeado
-      let userObject: any =
-        Object.keys(data)[0] == state.getState().name
-          ? data[Object.keys(data)[0]]
-          : data[Object.keys(data)[1]];
+        setTimeout(() => {
+          const startGameButton = document.querySelector("#startGame");
+          startGameButton?.addEventListener("click", () => {
+            let { userObject } = state.getState();
+            userObject.ready = true;
+            rtdb
+              .ref(
+                `/gamerooms/${state.getState().sala}/players/${
+                  state.getState().name
+                }`
+              )
+              .update(userObject);
+          });
 
-      // Utilizo un timeout por que la respuesta de firebase tarda y me da un error si agrego un eventListener antes
-      setTimeout(() => {
-        const startGameButton = document.querySelector("#startGame");
-        startGameButton.addEventListener("click", () => {
-          userObject.ready = true;
-          rtdb
-            .ref(
-              `/gamerooms/${state.getState().sala}/players/${
-                state.getState().name
-              }`
-            )
-            .update(userObject);
-        });
+          const { oponentObject, userObject, oponentName } = state.getState();
 
-        // Comprobar si el segundo dato del array es igual al oponente
-        const oponentObject =
-          Object.keys(data)[0] != state.getState().name
-            ? data[Object.keys(data)[0]]
-            : data[Object.keys(data)[1]];
+          if (!oponentObject.ready && userObject.ready) {
+            const descriptionEmpezar = document.querySelector(
+              ".description-empezar"
+            );
 
-        if (!oponentObject.ready && userObject.ready) {
-          const descriptionEmpezar = document.querySelector(
-            ".description-empezar"
-          );
+            const waitingDiv = document.createElement("div");
+            waitingDiv.innerHTML = `<span>Esperando a que <strong> ${oponentName} </strong> presione ¡Jugar!...</span>`;
+            waitingDiv.classList.add("waiting-text");
 
-          const waitingDiv = document.createElement("div");
-          waitingDiv.innerHTML = `<span>Esperando a que <strong> ${
-            Object.keys(data)[0] != state.getState().name
-              ? Object.keys(data)[0]
-              : Object.keys(data)[1]
-          } </strong> presione ¡Jugar!...</span>`;
-          waitingDiv.classList.add("waiting-text");
+            descriptionEmpezar.parentNode?.removeChild(descriptionEmpezar);
+            startGameButton.parentNode.removeChild(startGameButton);
+            content.firstChild.appendChild(waitingDiv);
+          } else if (oponentObject.ready && userObject.ready) {
+            // Si el oponente y tu estan listo redirigir a /juego
+            params.goTo("/juego");
+          }
+        }, 2000);
 
-          descriptionEmpezar.parentNode.removeChild(descriptionEmpezar);
-          startGameButton.parentNode.removeChild(startGameButton);
-          content.firstChild.appendChild(waitingDiv);
-        } else if (oponentObject.ready && userObject.ready) {
-          // Si el oponente y tu estan listo redirigir a /juego
-          params.goTo("/juego");
-        }
-      }, 2000);
-
-      content.firstChild?.remove();
-      content.appendChild(afterDiv);
-    } else {
-      const beforeDiv = document.createElement("div");
-      beforeDiv.innerHTML = `
+        content.firstChild?.remove();
+        content.appendChild(afterDiv);
+      } else {
+        const { sala } = state.getState();
+        const beforeDiv = document.createElement("div");
+        beforeDiv.innerHTML = `
         <div class="container-divs-before">
           <div class="div-before-game normal-divs">
             <span>
@@ -132,7 +113,7 @@ export function initEmpezarPage(params) {
 
           <div class="div-before-game code-div">
             <h3>
-              ${state.getState().sala}
+              ${sala}
             </h3>
           </div>
           <br />
@@ -144,12 +125,11 @@ export function initEmpezarPage(params) {
           </div>
         </div>
       `;
-      content.firstChild?.remove();
-      content.appendChild(beforeDiv);
+        content.firstChild?.remove();
+        content.appendChild(beforeDiv);
+      }
     }
-    // }, 2000);
   });
-  // }
 
   return el;
 }

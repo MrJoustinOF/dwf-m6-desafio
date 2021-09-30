@@ -1,4 +1,3 @@
-import firebase from "firebase";
 import { buttonComponent } from "./../components/button";
 import { inputComponent } from "./../components/input";
 import { state } from "./../state";
@@ -33,144 +32,145 @@ export function initIndex(params) {
     </div>
   `;
 
-  // const btnComp = el.querySelector(".button-component");
-  // btnComp.addEventListener("click", (e) => {
-  //   params.goTo("/empezar");
-  // });
-
-  firebase.initializeApp({
-    apiKey: "AIzaSyAY51xRKdVdFlrXc1CtMHg2sSN6b4uIE9Y",
-    authDomain: "dwf-m6-desafio.firebaseapp.com",
-    databaseURL: "https://dwf-m6-desafio-default-rtdb.firebaseio.com/",
-    storageBucket: "dwf-m6-desafio.appspot.com",
-  });
-
   const newGame = el.querySelector("#new-game");
   const getGame = el.querySelector("#get-game");
 
-  // Div donde se pone el nombre
-  const nameDiv = document.createElement("div");
-  nameDiv.innerHTML = `
-      ${inputComponent("Tu Nombre", "", "inputName")}
-      ${buttonComponent("Empezar", "startNewGame", "")}
-    `;
-
-  // Quitar anteriores div y colocar el de nombre
   newGame.addEventListener("click", () => {
-    newGame.parentNode.parentNode.appendChild(nameDiv);
-    newGame.parentNode.parentNode.removeChild(newGame.parentNode);
-    getGame.parentNode.parentNode.removeChild(getGame.parentNode);
-
-    const startNewGameButton = document.querySelector("#startNewGame");
-    startNewGameButton.addEventListener("click", () => {
-      const inputName: any = document.querySelector("#inputName");
-
-      const playerOwner = inputName.value;
-      if (inputName.value !== "") {
-        fetch("/api/gamerooms", {
-          method: "POST",
-          body: JSON.stringify({
-            playerOwner,
-          }),
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-        })
-          .then((res) => res.json())
-          .then((json) => {
-            state.setState({
-              ...state.getState(),
-              gameroomId: json.gameroom,
-              name: playerOwner,
-              sala: json.gameroom,
-            });
-
-            params.goTo("/empezar");
-          });
-      }
-    });
+    state.setState({ ...state.getState(), methodStart: "new" });
   });
 
-  // Div donde se pone el codigo
-  const codeDiv = document.createElement("div");
-  codeDiv.innerHTML = `
+  getGame.addEventListener("click", () => {
+    state.setState({ ...state.getState(), methodStart: "join" });
+  });
+
+  state.subscribe(() => {
+    // Hago esta evaluacion para que no se choque con otros components
+    if (window.location.pathname == "/") {
+      // Div donde se pone el codigo
+      const codeDiv = document.createElement("div");
+      codeDiv.innerHTML = `
       ${inputComponent("", "codigo", "inputCode")}
       ${buttonComponent("Ingresar a la sala", "addCodeButton", "")}
-    `;
+      `;
 
-  // Quitar anteriores div y colocar el del codigo
-  getGame.addEventListener("click", () => {
-    getGame.parentNode.parentNode.appendChild(codeDiv);
-    getGame.parentNode.parentNode.removeChild(getGame.parentNode);
-    newGame.parentNode.parentNode.removeChild(newGame.parentNode);
+      // Div donde se pone el nombre
+      const nameDiv = document.createElement("div");
+      nameDiv.innerHTML = `
+        ${inputComponent("Tu Nombre", "", "inputName")}
+        ${buttonComponent("Empezar", "startNewGame", "")}
+      `;
 
-    const addCodeButton = document.querySelector("#addCodeButton");
-    addCodeButton.addEventListener("click", () => {
-      const inputCode: any = document.querySelector("#inputCode");
+      if (state.getState().methodStart == "new") {
+        newGame.parentNode.parentNode?.appendChild(nameDiv);
+        newGame.parentNode.parentNode?.removeChild(newGame.parentNode);
+        getGame.parentNode.parentNode?.removeChild(getGame.parentNode);
 
-      fetch(`/api/gamerooms/${inputCode.value}`)
-        .then((res) => res.json())
-        .then((json) => {
-          if (json.error) {
-            const errDiv = document.createElement("div");
-            errDiv.innerHTML = `
-              <h2 class="err">ERROR: ${json.error}<h2>
-            `;
-            inputCode.parentNode.appendChild(errDiv);
-          } else {
-            state.setState({
-              ...state.getState(),
-              sala: inputCode.value,
-            });
+        const startNewGameButton = document.querySelector("#startNewGame");
+        startNewGameButton.addEventListener("click", () => {
+          const inputName: any = document.querySelector("#inputName");
 
-            addCodeButton.parentNode.parentNode.appendChild(nameDiv);
-            addCodeButton.parentNode.parentNode.removeChild(
-              addCodeButton.parentNode
-            );
-            inputCode.parentNode.parentNode.parentNode.removeChild(
-              inputCode.parentNode.parentNode
-            );
+          const playerOwner = inputName.value;
+          if (inputName.value !== "") {
+            fetch("/api/gamerooms", {
+              method: "POST",
+              body: JSON.stringify({
+                playerOwner,
+              }),
+              headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+              },
+            })
+              .then((res) => res.json())
+              .then((json) => {
+                state.setState({
+                  ...state.getState(),
+                  gameroomId: json.gameroom,
+                  name: playerOwner,
+                  sala: json.gameroom,
+                });
 
-            const start = document.querySelector("#startNewGame");
-            start.addEventListener("click", () => {
-              const inputName: any = document.querySelector("#inputName");
-              const newPlayer = inputName.value;
-
-              const newState = state.getState();
-              if (inputName.value !== "") {
-                fetch(`/api/gamerooms/${newState.sala}`, {
-                  method: "POST",
-                  body: JSON.stringify({
-                    newPlayer,
-                  }),
-                  headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json",
-                  },
-                })
-                  .then((res) => res.json())
-                  .then((json) => {
-                    if (json.error) {
-                      const errDiv = document.createElement("div");
-                      errDiv.innerHTML = `
-                        <h2 class="err">ERROR: ${json.error}<h2>
-                      `;
-                      inputName.parentNode.appendChild(errDiv);
-                    } else {
-                      state.setState({
-                        ...state.getState(),
-                        gameroomId: json.id,
-                        name: newPlayer,
-                      });
-                      params.goTo("/empezar");
-                    }
-                  });
-              }
-            });
+                state.initRTDBData(state.getState().sala);
+                params.goTo("/empezar");
+              });
           }
         });
-    });
+      } else if (state.getState().methodStart == "join") {
+        getGame.parentNode.parentNode?.appendChild(codeDiv);
+        getGame.parentNode.parentNode?.removeChild(getGame.parentNode);
+        newGame.parentNode.parentNode?.removeChild(newGame.parentNode);
+
+        const addCodeButton = document.querySelector("#addCodeButton");
+        addCodeButton?.addEventListener("click", () => {
+          const inputCode: any = document.querySelector("#inputCode");
+
+          fetch(`/api/gamerooms/${inputCode.value}`)
+            .then((res) => res.json())
+            .then((json) => {
+              if (json.error) {
+                const errDiv = document.createElement("div");
+                errDiv.innerHTML = `
+              <h2 class="err">ERROR: ${json.error}<h2>
+            `;
+                inputCode.parentNode.appendChild(errDiv);
+              } else {
+                state.setState({
+                  ...state.getState(),
+                  sala: inputCode.value,
+                });
+
+                addCodeButton.parentNode.parentNode.appendChild(nameDiv);
+                addCodeButton.parentNode.parentNode.removeChild(
+                  addCodeButton.parentNode
+                );
+                inputCode.parentNode.parentNode.parentNode.removeChild(
+                  inputCode.parentNode.parentNode
+                );
+
+                const start = document.querySelector("#startNewGame");
+                start.addEventListener("click", () => {
+                  const inputName: any = document.querySelector("#inputName");
+                  const newPlayer = inputName.value;
+
+                  // const newState = state.getState();
+                  const { sala } = state.getState();
+                  if (inputName.value !== "") {
+                    fetch(`/api/gamerooms/${sala}`, {
+                      method: "POST",
+                      body: JSON.stringify({
+                        newPlayer,
+                      }),
+                      headers: {
+                        Accept: "application/json",
+                        "Content-Type": "application/json",
+                      },
+                    })
+                      .then((res) => res.json())
+                      .then((json) => {
+                        const { error } = json;
+                        if (error) {
+                          const errDiv = document.createElement("div");
+                          errDiv.innerHTML = `
+                        <h2 class="err">ERROR: ${json.error}<h2>
+                      `;
+                          inputName.parentNode.appendChild(errDiv);
+                        } else {
+                          state.setState({
+                            ...state.getState(),
+                            gameroomId: json.id,
+                            name: newPlayer,
+                          });
+                          state.initRTDBData(sala);
+                          params.goTo("/empezar");
+                        }
+                      });
+                  }
+                });
+              }
+            });
+        });
+      }
+    }
   });
 
   return el;

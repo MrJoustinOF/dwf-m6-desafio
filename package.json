@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "nodemon ./src/index.ts",
     "client": "parcel serve ./src/public/index.html ",
-    "compile": "tsc ./src/index.ts && tsc ./src/codeGen.ts",
+    "compile": "tsc ./src/index.ts && tsc ./src/codeGen.ts && tsc ./src/db.ts",
     "start": "yarn compile && node ./src/index.js"
   },
   "devDependencies": {
