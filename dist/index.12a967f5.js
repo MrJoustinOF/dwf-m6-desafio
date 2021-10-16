@@ -655,6 +655,15 @@ const state = {
             });
         });
     },
+    setReady () {
+        let { userObject  } = state.getState();
+        userObject.ready = true;
+        _db.rtdb.ref(`/gamerooms/${state.getState().sala}/players/${state.getState().name}`).update(userObject);
+    },
+    setHand () {
+        let { userObject  } = state.getState();
+        _db.rtdb.ref(`/gamerooms/${state.getState().sala}/players/${state.getState().name}`).update(userObject);
+    },
     resetValuesRTDB () {
         if (state.getState().compStatus == "reset") {
             let dataToReset = {
@@ -60052,7 +60061,6 @@ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "initEmpezarPage", ()=>initEmpezarPage
 );
-var _db = require("./../db");
 var _button = require("../components/button");
 var _state = require("./../state");
 const tijerasIMG = require("url:./../img/tijeras.png");
@@ -60071,9 +60079,7 @@ function initEmpezarPage(params) {
                 setTimeout(()=>{
                     const startGameButton = document.querySelector("#startGame");
                     startGameButton?.addEventListener("click", ()=>{
-                        let { userObject  } = _state.state.getState();
-                        userObject.ready = true;
-                        _db.rtdb.ref(`/gamerooms/${_state.state.getState().sala}/players/${_state.state.getState().name}`).update(userObject);
+                        _state.state.setReady();
                     });
                     const { oponentObject: oponentObject1 , userObject , oponentName: oponentName1  } = _state.state.getState();
                     if (!oponentObject1.ready && userObject.ready) {
@@ -60101,12 +60107,11 @@ function initEmpezarPage(params) {
     return el;
 }
 
-},{"./../db":"7w2Im","../components/button":"1zpZY","./../state":"5mroK","url:./../img/tijeras.png":"7xh9Q","url:./../img/piedra.png":"405Ce","url:./../img/papel.png":"6MZTm","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"3ZMao":[function(require,module,exports) {
+},{"../components/button":"1zpZY","./../state":"5mroK","url:./../img/tijeras.png":"7xh9Q","url:./../img/piedra.png":"405Ce","url:./../img/papel.png":"6MZTm","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"3ZMao":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "initJuego", ()=>initJuego
 );
-var _db = require("./../db");
 var _state = require("../state");
 var _addSelected = require("./utils/addSelected");
 const tijerasIMG = require("url:./../img/tijeras.png");
@@ -60204,10 +60209,7 @@ function initJuego(params) {
                         winner: false
                     }
                 });
-                if (_state.state.getState().userObject.handChoosen) {
-                    let { userObject: userObject1  } = _state.state.getState();
-                    _db.rtdb.ref(`/gamerooms/${_state.state.getState().sala}/players/${_state.state.getState().name}`).update(userObject1);
-                }
+                if (_state.state.getState().userObject.handChoosen) _state.state.setHand();
                 let handOponent = document.querySelector(`.img-hand__${_state.state.getState().oponentObject.handChoosen}`);
                 handsContainer?.appendChild(handOponent);
                 handsContainer?.appendChild(selected);
@@ -60257,7 +60259,7 @@ function initJuego(params) {
     return el;
 }
 
-},{"./../db":"7w2Im","../state":"5mroK","./utils/addSelected":"3OVih","url:./../img/tijeras.png":"7xh9Q","url:./../img/piedra.png":"405Ce","url:./../img/papel.png":"6MZTm","url:./../img/three.png":"77257","url:./../img/two.png":"2PIAe","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"3OVih":[function(require,module,exports) {
+},{"../state":"5mroK","./utils/addSelected":"3OVih","url:./../img/tijeras.png":"7xh9Q","url:./../img/piedra.png":"405Ce","url:./../img/papel.png":"6MZTm","url:./../img/three.png":"77257","url:./../img/two.png":"2PIAe","@parcel/transformer-js/src/esmodule-helpers.js":"367CR"}],"3OVih":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "addSelected", ()=>addSelected

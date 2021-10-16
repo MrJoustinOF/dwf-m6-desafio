@@ -109,14 +109,7 @@ export function initJuego(params) {
         }
 
         if (state.getState().userObject.handChoosen) {
-          let { userObject } = state.getState();
-          rtdb
-            .ref(
-              `/gamerooms/${state.getState().sala}/players/${
-                state.getState().name
-              }`
-            )
-            .update(userObject);
+          state.setHand();
         }
 
         let handOponent = document.querySelector(

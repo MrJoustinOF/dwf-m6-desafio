@@ -66,15 +66,7 @@ export function initEmpezarPage(params) {
         setTimeout(() => {
           const startGameButton = document.querySelector("#startGame");
           startGameButton?.addEventListener("click", () => {
-            let { userObject } = state.getState();
-            userObject.ready = true;
-            rtdb
-              .ref(
-                `/gamerooms/${state.getState().sala}/players/${
-                  state.getState().name
-                }`
-              )
-              .update(userObject);
+            state.setReady();
           });
 
           const { oponentObject, userObject, oponentName } = state.getState();

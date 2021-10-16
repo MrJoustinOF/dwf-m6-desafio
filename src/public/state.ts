@@ -51,6 +51,23 @@ const state = {
       });
     });
   },
+  setReady() {
+    let { userObject } = state.getState();
+    userObject.ready = true;
+    rtdb
+      .ref(
+        `/gamerooms/${state.getState().sala}/players/${state.getState().name}`
+      )
+      .update(userObject);
+  },
+  setHand() {
+    let { userObject } = state.getState();
+    rtdb
+      .ref(
+        `/gamerooms/${state.getState().sala}/players/${state.getState().name}`
+      )
+      .update(userObject);
+  },
   resetValuesRTDB() {
     if (state.getState().compStatus == "reset") {
       let dataToReset = {
