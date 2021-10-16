@@ -72,11 +72,11 @@ export function initJuego(params) {
   }, 3000);
 
   state.subscribe(() => {
-    setTimeout(() => {
-      const { pathname } = window.location;
-      let { time, moment } = state.getState();
+    const { pathname } = window.location;
+    let { time, moment } = state.getState();
 
-      if (time === 3 && moment === "result" && pathname === "/juego") {
+    if (time === 3 && moment === "result" && pathname === "/juego") {
+      setTimeout(() => {
         let handsContainer = document.querySelector(".hands_container");
         let selected = document.querySelector(".selected");
         let arrayHands = [tijeras, piedra, papel];
@@ -168,8 +168,8 @@ export function initJuego(params) {
             moment: "waiting",
           });
         }
-      }
-    }, 1000);
+      }, 1000);
+    }
   });
 
   setTimeout(() => {

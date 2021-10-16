@@ -60172,84 +60172,82 @@ function initJuego(params) {
         });
     }, 3000);
     _state.state.subscribe(()=>{
-        setTimeout(()=>{
-            const { pathname  } = window.location;
-            let { time , moment  } = _state.state.getState();
-            if (time === 3 && moment === "result" && pathname === "/juego") {
-                let handsContainer = document.querySelector(".hands_container");
-                let selected = document.querySelector(".selected");
-                let arrayHands = [
-                    tijeras,
-                    piedra,
-                    papel
+        const { pathname  } = window.location;
+        let { time , moment  } = _state.state.getState();
+        if (time === 3 && moment === "result" && pathname === "/juego") setTimeout(()=>{
+            let handsContainer = document.querySelector(".hands_container");
+            let selected = document.querySelector(".selected");
+            let arrayHands = [
+                tijeras,
+                piedra,
+                papel
+            ];
+            tijeras.removeEventListener("click", tijerasListeners);
+            piedra.removeEventListener("click", piedraListeners);
+            papel.removeEventListener("click", papelListeners);
+            let { handOn , userObject  } = _state.state.getState();
+            if (!handOn) {
+                let random = Math.floor(Math.random() * 3);
+                let arrayToState = [
+                    "tijeras",
+                    "piedra",
+                    "papel"
                 ];
-                tijeras.removeEventListener("click", tijerasListeners);
-                piedra.removeEventListener("click", piedraListeners);
-                papel.removeEventListener("click", papelListeners);
-                let { handOn , userObject  } = _state.state.getState();
-                if (!handOn) {
-                    let random = Math.floor(Math.random() * 3);
-                    let arrayToState = [
-                        "tijeras",
-                        "piedra",
-                        "papel"
-                    ];
-                    selected = arrayHands[random];
-                    _addSelected.addSelected(arrayToState[random], "");
-                    _state.state.setState({
-                        ..._state.state.getState(),
-                        handOn: arrayToState[random]
-                    });
-                }
-                if (!userObject.handChoosen && handOn) _state.state.setState({
+                selected = arrayHands[random];
+                _addSelected.addSelected(arrayToState[random], "");
+                _state.state.setState({
                     ..._state.state.getState(),
-                    userObject: {
-                        handChoosen: _state.state.getState().handOn,
-                        ready: true,
-                        winner: false
-                    }
+                    handOn: arrayToState[random]
                 });
-                if (_state.state.getState().userObject.handChoosen) _state.state.setHand();
-                let handOponent = document.querySelector(`.img-hand__${_state.state.getState().oponentObject.handChoosen}`);
-                handsContainer?.appendChild(handOponent);
-                handsContainer?.appendChild(selected);
-                let containerToRemove = document.querySelector(".hands");
-                containerToRemove?.parentNode.removeChild(containerToRemove);
-                handOponent.classList.remove("deselected");
-                handOponent.classList.add("hand-oponent");
-                selected.classList.remove("selected");
-                selected.classList.add("hand-selected");
-                handsContainer.parentNode.removeChild(document.querySelector(".cron_container"));
-                handsContainer.classList.remove("hands_container");
-                handsContainer.classList.add("hands_result");
-                const handSelected = document.querySelector(".hand-selected");
-                const root = document.querySelector(".root");
-                const TheResultDiv = document.createElement("div");
-                TheResultDiv.classList.add("result");
-                root.firstChild.appendChild(TheResultDiv);
-                const handOponentcomp = document.querySelector(".hand-oponent");
-                let { winner  } = _state.state.getState();
-                if (!winner) {
-                    if (handSelected.classList.value.includes("tijeras") && handOponentcomp.classList.value.includes("papel") || handSelected.classList.value.includes("papel") && handOponentcomp.classList.value.includes("piedra") || handSelected.classList.value.includes("piedra") && handOponentcomp.classList.value.includes("tijeras")) {
-                        let { name  } = _state.state.getState();
-                        _state.state.setState({
-                            ..._state.state.getState(),
-                            winner: name
-                        });
-                    } else {
-                        let { oponentName  } = _state.state.getState();
-                        _state.state.setState({
-                            ..._state.state.getState(),
-                            winner: oponentName
-                        });
-                    }
+            }
+            if (!userObject.handChoosen && handOn) _state.state.setState({
+                ..._state.state.getState(),
+                userObject: {
+                    handChoosen: _state.state.getState().handOn,
+                    ready: true,
+                    winner: false
+                }
+            });
+            if (_state.state.getState().userObject.handChoosen) _state.state.setHand();
+            let handOponent = document.querySelector(`.img-hand__${_state.state.getState().oponentObject.handChoosen}`);
+            handsContainer?.appendChild(handOponent);
+            handsContainer?.appendChild(selected);
+            let containerToRemove = document.querySelector(".hands");
+            containerToRemove?.parentNode.removeChild(containerToRemove);
+            handOponent.classList.remove("deselected");
+            handOponent.classList.add("hand-oponent");
+            selected.classList.remove("selected");
+            selected.classList.add("hand-selected");
+            handsContainer.parentNode.removeChild(document.querySelector(".cron_container"));
+            handsContainer.classList.remove("hands_container");
+            handsContainer.classList.add("hands_result");
+            const handSelected = document.querySelector(".hand-selected");
+            const root = document.querySelector(".root");
+            const TheResultDiv = document.createElement("div");
+            TheResultDiv.classList.add("result");
+            root.firstChild.appendChild(TheResultDiv);
+            const handOponentcomp = document.querySelector(".hand-oponent");
+            let { winner  } = _state.state.getState();
+            if (!winner) {
+                if (handSelected.classList.value.includes("tijeras") && handOponentcomp.classList.value.includes("papel") || handSelected.classList.value.includes("papel") && handOponentcomp.classList.value.includes("piedra") || handSelected.classList.value.includes("piedra") && handOponentcomp.classList.value.includes("tijeras")) {
+                    let { name  } = _state.state.getState();
                     _state.state.setState({
                         ..._state.state.getState(),
-                        validator: true,
-                        time: 0,
-                        moment: "waiting"
+                        winner: name
+                    });
+                } else {
+                    let { oponentName  } = _state.state.getState();
+                    _state.state.setState({
+                        ..._state.state.getState(),
+                        winner: oponentName
                     });
                 }
+                _state.state.setState({
+                    ..._state.state.getState(),
+                    validator: true,
+                    time: 0,
+                    moment: "waiting"
+                });
             }
         }, 1000);
     });
